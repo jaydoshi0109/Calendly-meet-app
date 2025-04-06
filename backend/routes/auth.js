@@ -81,16 +81,16 @@ router.get('/debug', (req, res) => {
 });
 
 
-router.get('/logout', (req, res) => {
-  req.logout(() => res.redirect('/'));
-});
+// router.get('/logout', (req, res) => {
+//   req.logout(() => res.redirect('/'));
+// });
 
-router.get('/me', (req, res) => {
-  if (req.isAuthenticated() && req.user) {
-    res.json({ user: req.user });
-  } else {
-    res.status(401).json({ message: 'Not authenticated' });
-  }
-});
+// router.get('/me', (req, res) => {
+//   if (req.isAuthenticated() && req.user) {
+//     res.json({ user: req.user });
+//   } else {
+//     res.status(401).json({ message: 'Not authenticated' });
+//   }
+// });
 
 export default router;
