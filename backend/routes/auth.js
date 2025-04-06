@@ -12,58 +12,49 @@ router.get('/google', passport.authenticate('google', {
   prompt: 'consent',
 }));
 
-// router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/' }), async (req, res) => {
-//   if (req.user) {
-//     const { accessToken, refreshToken } = req.user; // Make sure passport strategy attaches them
-//     await User.findByIdAndUpdate(req.user._id, { accessToken, refreshToken });
-//   }
-//   console.log("Auth successful, redirecting to dashboard");
-//   res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard`);
-// });
 
-
-// router.get('/google/callback', passport.authenticate('google', { 
-//   failureRedirect: `${getEnvVariable('FRONTEND_URL')}/login?error=auth_failed` 
-// }), async (req, res) => {
-//   console.log("User after auth:", req.user);
-//   console.log("Session ID after auth:", req.sessionID);
-  
-//   // Add this to ensure tokens are saved correctly
-//   if (req.user) {
-//     try {
-//       await User.findByIdAndUpdate(req.user._id, { 
-//         accessToken: req.user.accessToken, 
-//         refreshToken: req.user.refreshToken 
-//       });
-//       console.log("Tokens saved successfully");
-//     } catch (err) {
-//       console.error("Error saving tokens:", err);
-//     }
-//   }
-  
-//   res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard`);
-// });
-
-// In auth.js
 router.get('/google/callback', passport.authenticate('google', { 
   failureRedirect: `${getEnvVariable('FRONTEND_URL')}/login?error=auth_failed` 
 }), async (req, res) => {
-  try {
-    console.log("Google auth successful, user:", req.user._id);
-    
-    // Force session save to ensure persistence
-    req.session.save(err => {
-      if (err) {
-        console.error("Session save error:", err);
-      }
-      console.log("Session saved with ID:", req.sessionID);
-      res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard`);
-    });
-  } catch (error) {
-    console.error("Callback error:", error);
-    res.redirect(`${getEnvVariable('FRONTEND_URL')}/login?error=server_error`);
+  console.log("User after auth:", req.user);
+  console.log("Session ID after auth:", req.sessionID);
+  
+  // Add this to ensure tokens are saved correctly
+  if (req.user) {
+    try {
+      await User.findByIdAndUpdate(req.user._id, { 
+        accessToken: req.user.accessToken, 
+        refreshToken: req.user.refreshToken 
+      });
+      console.log("Tokens saved successfully");
+    } catch (err) {
+      console.error("Error saving tokens:", err);
+    }
   }
+  
+  res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard`);
 });
+
+// // In auth.js
+// router.get('/google/callback', passport.authenticate('google', { 
+//   failureRedirect: `${getEnvVariable('FRONTEND_URL')}/login?error=auth_failed` 
+// }), async (req, res) => {
+//   try {
+//     console.log("Google auth successful, user:", req.user._id);
+    
+//     // Force session save to ensure persistence
+//     req.session.save(err => {
+//       if (err) {
+//         console.error("Session save error:", err);
+//       }
+//       console.log("Session saved with ID:", req.sessionID);
+//       res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard`);
+//     });
+//   } catch (error) {
+//     console.error("Callback error:", error);
+//     res.redirect(`${getEnvVariable('FRONTEND_URL')}/login?error=server_error`);
+//   }
+// });
 
 // In auth.js
 router.get('/debug', (req, res) => {
