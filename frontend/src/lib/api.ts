@@ -2,7 +2,7 @@ import axios from "axios";
 import { toast } from "sonner";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL + "/api", // Use env variable
+  baseURL: "/api", // Use relative URL so it goes through the proxy
   withCredentials: true,
 });
 
