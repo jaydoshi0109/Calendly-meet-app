@@ -1,16 +1,32 @@
 import axios from "axios";
 import { toast } from "sonner";
 
+// 1. Capture token from URL if present
+if (window.location.search) {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  if (token) {
+    // Store the token in localStorage
+    localStorage.setItem('token', token);
+    // Remove token from URL so it doesn't linger
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
+
 const api = axios.create({
-  baseURL: "/api", // Use relative URL so it goes through the proxy
+  // Using a relative URL if you're using a reverse proxy in development,
+  // otherwise, use the environment variable as needed.
+  baseURL: import.meta.env.VITE_API_URL + "/api", 
   withCredentials: true,
 });
 
-// Request interceptor
+// 2. Request interceptor: Attach the JWT to every request
 api.interceptors.request.use(
   (config) => {
-    // You can add authorization headers here
-    // config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -18,27 +34,20 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor
+// 3. Response interceptor: Handle errors (like 401 Unauthorized)
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
     if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
       if (error.response.status === 401) {
-        // Handle unauthorized access (e.g., redirect to login)
         toast.error("Session expired, please log back in.");
         window.location.href = "/login";
       } else {
         toast.error(error.response.data.message || "An error occurred.");
       }
     } else if (error.request) {
-      // The request was made but no response was received
       toast.error("Network error, please try again.");
     } else {
-      // Something happened in setting up the request that triggered an Error
       toast.error("An unexpected error occurred.");
     }
     return Promise.reject(error);
