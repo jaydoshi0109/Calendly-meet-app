@@ -2,7 +2,7 @@ import express from 'express';
 import { google } from 'googleapis';
 import { getEnvVariable } from '../utils/env.js';
 import User from '../models/User.js'; // assuming User model exists
-import passport from 'passport';
+// import passport from 'passport';
 import { ensureAuth } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
@@ -40,14 +40,14 @@ router.get('/auth', (req, res) => {
 
 // Check connection status
 router.get('/status', async (req, res) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user._id);
   res.json({ connected: !!user.googleAccessToken });
 });
 
 // List Google Calendar Events
 router.get('/events', ensureAuth,async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     if (!user.googleAccessToken) {
       return res.status(401).json({ message: 'User not connected to Google' });
     }
