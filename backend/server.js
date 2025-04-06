@@ -11,6 +11,8 @@ import googleRoutes from './routes/google.js';
 import authRoutes from './routes/auth.js';
 import availabilityRoutes from './routes/availability.js';
 import meetingsRoutes from './routes/meetings.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 
