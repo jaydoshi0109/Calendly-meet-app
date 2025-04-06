@@ -23,7 +23,7 @@ export const createMeeting = async (req, res) => {
       status: 'pending'
     });
 
-    res.json({ link: `http://localhost:5173/confirm/${meeting._id}`, id: meeting._id });
+    res.json({ link: `https://calendly-meet-app-fe.onrender.com/confirm/${meeting._id}`, id: meeting._id });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
