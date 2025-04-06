@@ -39,15 +39,16 @@ router.get('/auth', (req, res) => {
 
 
 // Check connection status
-router.get('/status', async (req, res) => {
-  const user = await User.findById(req.user._id);
+router.get('/status', ensureAuth, async (req, res) => {
+  const user = await User.findById(req.user.id);
   res.json({ connected: !!user.googleAccessToken });
 });
+
 
 // List Google Calendar Events
 router.get('/events', ensureAuth,async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user.id);
     if (!user.googleAccessToken) {
       return res.status(401).json({ message: 'User not connected to Google' });
     }
@@ -71,8 +72,9 @@ router.get('/events', ensureAuth,async (req, res, next) => {
   }
 });
 
-router.get('/status', ensureAuth, (req, res) => {
-  res.json({ connected: !!req.user.googleAccessToken });
+router.get('/status', ensureAuth, async (req, res) => {
+  const user = await User.findById(req.user.id);
+  res.json({ connected: !!user.googleAccessToken });
 });
 
 export default router;
