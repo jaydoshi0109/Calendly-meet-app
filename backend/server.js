@@ -19,31 +19,44 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({ 
-  origin: getEnvVariable('FRONTEND_URL', false) || 'http://localhost:5173', 
+// In server.js
+app.use(cors({
+  origin: getEnvVariable('FRONTEND_URL', false) || 'http://localhost:5173',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Set-Cookie']
 }));
+
+
 app.use(express.json());
-app.use(
-  session({
-    secret: getEnvVariable('SESSION_SECRET'),
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({ 
-      mongoUrl: getEnvVariable('MONGO_URI'),
-      ttl: 60 * 60 * 24 // 1 day in seconds
-    }),
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    },
-    proxy: true // Important for Render
-  })
-);
+
+
+const sessionOptions = {
+  secret: getEnvVariable('SESSION_SECRET'),
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ 
+    mongoUrl: getEnvVariable('MONGO_URI'),
+    collectionName: 'sessions'
+  }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  },
+  proxy: true
+};
+
+// Set trust proxy first
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
+app.use(session(sessionOptions));
+
+
 app.use(passport.initialize());
 app.use(passport.session());
 

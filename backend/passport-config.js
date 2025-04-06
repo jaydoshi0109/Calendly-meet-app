@@ -35,17 +35,20 @@ passport.use(
     }
   )
 );
+// In passport-config.js
 passport.serializeUser((user, done) => {
-  console.log("Serializing user:", user.id);
-  done(null, user.id);
+  console.log("Serializing user:", user._id);
+  done(null, user._id);
 });
 
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await User.findById(id);
-    console.log("Deserializing user:", user);
+    console.log("Attempting to deserialize user:", id);
+    const user = await User.findById(id).exec();
+    console.log("Deserializing user result:", !!user);
     done(null, user);
   } catch (err) {
+    console.error("Deserialize error:", err);
     done(err, null);
   }
 });
