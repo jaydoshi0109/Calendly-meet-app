@@ -12,17 +12,24 @@ import authRoutes from './routes/auth.js';
 import availabilityRoutes from './routes/availability.js';
 import meetingsRoutes from './routes/meetings.js';
 import dotenv from 'dotenv';
+
 dotenv.config();
+
 
 const app = express();
 
-app.use(cors({ origin: getEnvVariable('FRONTEND_URL', false) || 'http://localhost:5173', credentials: true })); // Use frontend url from env.
+app.use(cors({ 
+  origin: getEnvVariable('FRONTEND_URL', false) || 'http://localhost:5173', 
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(
   session({
     secret: getEnvVariable('SESSION_SECRET'),
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: {
       secure: process.env.NODE_ENV === 'production', // Set secure in production
       httpOnly: true,
@@ -33,6 +40,12 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use((req, res, next) => {
+  console.log('Session ID:', req.sessionID);
+  console.log('Is Authenticated:', req.isAuthenticated());
+  next();
+});
 
 app.use('/api/google', googleRoutes);
 app.use('/api/auth', authRoutes);

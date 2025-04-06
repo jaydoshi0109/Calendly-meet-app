@@ -1,9 +1,15 @@
 // middleware/authMiddleware.js
 export const ensureAuth = (req, res, next) => {
+  console.log("Session:", req.session);
+  console.log("User authenticated:", req.isAuthenticated());
+  
   if (req.isAuthenticated()) {
     return next();
-  } else {
-    console.error('Unauthorized access attempt:', req.ip, req.originalUrl); // Log the attempt
-    return res.status(401).json({ message: 'Unauthorized access. Please log in.' });
   }
+  
+  console.log("Not authenticated, redirecting");
+  return res.status(401).json({ 
+    message: 'Not authenticated',
+    redirectUrl: `${process.env.FRONTEND_URL}/login` 
+  });
 };

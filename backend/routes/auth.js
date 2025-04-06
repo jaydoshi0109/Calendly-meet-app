@@ -12,11 +12,21 @@ router.get('/google', passport.authenticate('google', {
   prompt: 'consent',
 }));
 
-router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/' }), async (req, res) => {
-  if (req.user) {
-    const { accessToken, refreshToken } = req.user; // Make sure passport strategy attaches them
-    await User.findByIdAndUpdate(req.user._id, { accessToken, refreshToken });
-  }
+// router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/' }), async (req, res) => {
+//   if (req.user) {
+//     const { accessToken, refreshToken } = req.user; // Make sure passport strategy attaches them
+//     await User.findByIdAndUpdate(req.user._id, { accessToken, refreshToken });
+//   }
+//   console.log("Auth successful, redirecting to dashboard");
+//   res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard`);
+// });
+
+
+router.get('/google/callback', passport.authenticate('google', { 
+  failureRedirect: `${getEnvVariable('FRONTEND_URL')}/login?error=auth_failed` 
+}), async (req, res) => {
+  // Ensure user is properly set in session
+  console.log("Auth successful, redirecting to dashboard");
   res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard`);
 });
 

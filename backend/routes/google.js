@@ -23,19 +23,19 @@ router.get('/auth', (req, res) => {
 });
 
 // Step 2: Callback to save tokens
-router.get('/callback', passport.authenticate('google', { failureRedirect: '/' }), async (req, res) => {
-  try {
-    // Save tokens to user model
-    req.user.accessToken = req.authInfo.accessToken;
-    req.user.refreshToken = req.authInfo.refreshToken;
-    await req.user.save();
-
-    res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard`);
-  } catch (error) {
-    console.error('Error saving tokens:', error);
-    res.redirect(`${getEnvVariable('FRONTEND_URL')}/error`);
-  }
-});
+// router.get('/callback', passport.authenticate('google', { failureRedirect: '/' }), async (req, res) => {
+//   try {
+//     // Save tokens to user model
+//     req.user.accessToken = req.authInfo.accessToken;
+//     req.user.refreshToken = req.authInfo.refreshToken;
+//     await req.user.save();
+//     console.log("Auth successful, redirecting to dashboard");
+//     res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard`);
+//   } catch (error) {
+//     console.error('Error saving tokens:', error);
+//     res.redirect(`${getEnvVariable('FRONTEND_URL')}/error`);
+//   }
+// });
 
 
 // Check connection status
