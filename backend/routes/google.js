@@ -9,7 +9,7 @@ const router = express.Router();
 const oauth2Client = new google.auth.OAuth2(
   getEnvVariable('GOOGLE_CLIENT_ID'),
   getEnvVariable('GOOGLE_CLIENT_SECRET'),
-  `${getEnvVariable('BACKEND_URL')}/api/google/callback`
+  `${getEnvVariable('BACKEND_URL')}/api/auth/google/callback`
 );
 
 // Step 1: Redirect to Google OAuth
