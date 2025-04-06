@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const fetchUser = async () => {
       try {
         // With JWT, you don't necessarily need withCredentials if you're not relying on cookies.
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/me`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/protected/me`);
         setUser(res.data.user);
       } catch (err) {
         setUser(null);
