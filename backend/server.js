@@ -45,7 +45,7 @@ const sessionOptions = {
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24, // 1 day
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? 'onrender.com' : undefined,
+    // domain: process.env.NODE_ENV === 'production' ? 'onrender.com' : undefined,
   },
   proxy: true
 };
