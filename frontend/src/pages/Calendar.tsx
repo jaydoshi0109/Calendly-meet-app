@@ -481,7 +481,7 @@ ${event.description || ""}
                               Awaiting confirmation
                             </p>
                             <a
-                              href={`http://localhost:5173/confirm/${event.id}`}
+                              href={`https://calendly-meet-app-fe.onrender.com/confirm/${event.id}`}
                               target="_blank"
                               className="text-blue-600 underline text-sm hover:text-blue-800"
                             >
