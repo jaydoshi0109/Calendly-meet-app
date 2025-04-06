@@ -28,7 +28,7 @@ export const createGoogleCalendarEvent = async ({ user, meeting }) => {
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-    // ✅ Normalize date string to "YYYY-MM-DD"
+    // Format date and time
     const normalizedDate = dayjs(meeting.date).format('YYYY-MM-DD');
     const startInput = `${normalizedDate} ${meeting.startTime}`;
     const endInput = `${normalizedDate} ${meeting.endTime}`;
