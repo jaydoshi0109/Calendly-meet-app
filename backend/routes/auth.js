@@ -3,6 +3,7 @@ import express from 'express';
 import passport from 'passport';
 import { getEnvVariable } from '../utils/env.js';
 import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.get('/google/callback', passport.authenticate('google', {
   console.log("User after auth:", req.user);
   console.log("Session ID after auth:", req.sessionID);
   
-  // Add this to ensure tokens are saved correctly
+  // Save tokens to user model if necessary
   if (req.user) {
     try {
       await User.findByIdAndUpdate(req.user._id, { 
@@ -31,8 +32,16 @@ router.get('/google/callback', passport.authenticate('google', {
       console.error("Error saving tokens:", err);
     }
   }
+
+  // Generate a JWT token
+  const token = jwt.sign(
+    { id: req.user._id, email: req.user.email, name: req.user.name },
+    process.env.JWT_SECRET,
+    { expiresIn: '1d' }
+  );
   
-  res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard`);
+  // Redirect to frontend with the token as a query parameter
+  res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard?token=${token}`);
 });
 
 // // In auth.js
