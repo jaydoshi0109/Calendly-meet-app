@@ -25,8 +25,22 @@ router.get('/google', passport.authenticate('google', {
 router.get('/google/callback', passport.authenticate('google', { 
   failureRedirect: `${getEnvVariable('FRONTEND_URL')}/login?error=auth_failed` 
 }), async (req, res) => {
-  // Ensure user is properly set in session
-  console.log("Auth successful, redirecting to dashboard");
+  console.log("User after auth:", req.user);
+  console.log("Session ID after auth:", req.sessionID);
+  
+  // Add this to ensure tokens are saved correctly
+  if (req.user) {
+    try {
+      await User.findByIdAndUpdate(req.user._id, { 
+        accessToken: req.user.accessToken, 
+        refreshToken: req.user.refreshToken 
+      });
+      console.log("Tokens saved successfully");
+    } catch (err) {
+      console.error("Error saving tokens:", err);
+    }
+  }
+  
   res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard`);
 });
 

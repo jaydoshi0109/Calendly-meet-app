@@ -12,6 +12,7 @@ import authRoutes from './routes/auth.js';
 import availabilityRoutes from './routes/availability.js';
 import meetingsRoutes from './routes/meetings.js';
 import dotenv from 'dotenv';
+import MongoStore from 'connect-mongo';
 
 dotenv.config();
 
@@ -29,13 +30,18 @@ app.use(
   session({
     secret: getEnvVariable('SESSION_SECRET'),
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    store: MongoStore.create({ 
+      mongoUrl: getEnvVariable('MONGO_URI'),
+      ttl: 60 * 60 * 24 // 1 day in seconds
+    }),
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // Set secure in production
+      secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24, // 1 day
-      sameSite: 'none'
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     },
+    proxy: true // Important for Render
   })
 );
 app.use(passport.initialize());
