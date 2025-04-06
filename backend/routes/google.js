@@ -1,9 +1,9 @@
 import express from 'express';
 import { google } from 'googleapis';
 import { getEnvVariable } from '../utils/env.js';
-import User from '../models/User.js'; // assuming User model exists
 import passport from 'passport';
 import { ensureAuth } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
 
 const oauth2Client = new google.auth.OAuth2(
@@ -12,7 +12,7 @@ const oauth2Client = new google.auth.OAuth2(
   `${getEnvVariable('BACKEND_URL')}/api/auth/google/callback`
 );
 
-// Step 1: Redirect to Google OAuth
+// Step 1: Redirect to Google OAuth for Calendar Scope
 router.get('/auth', (req, res) => {
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline',
@@ -22,12 +22,12 @@ router.get('/auth', (req, res) => {
   res.json({ url });
 });
 
-// Step 2: Callback to save tokens
+// Step 2: Callback to Update Tokens
 router.get('/callback', passport.authenticate('google', { failureRedirect: '/' }), async (req, res) => {
   try {
-    // Save tokens to user model
-    req.user.accessToken = req.authInfo.accessToken;
-    req.user.refreshToken = req.authInfo.refreshToken;
+    // Update tokens with the correct field names stored in your User model
+    req.user.googleAccessToken = req.authInfo && req.authInfo.accessToken ? req.authInfo.accessToken : req.user.googleAccessToken;
+    req.user.googleRefreshToken = req.authInfo && req.authInfo.refreshToken ? req.authInfo.refreshToken : req.user.googleRefreshToken;
     await req.user.save();
     console.log("Auth successful, redirecting to dashboard");
     res.redirect(`${getEnvVariable('FRONTEND_URL')}/dashboard`);
@@ -37,23 +37,20 @@ router.get('/callback', passport.authenticate('google', { failureRedirect: '/' }
   }
 });
 
-
-// Check connection status
-router.get('/status', async (req, res) => {
-  const user = await User.findById(req.user.id);
-  res.json({ connected: !!user.googleAccessToken });
+// Protected: Check Connection Status
+router.get('/status', ensureAuth, (req, res) => {
+  res.json({ connected: !!req.user.googleAccessToken });
 });
 
-// List Google Calendar Events
-router.get('/events', ensureAuth,async (req, res, next) => {
+// Protected: List Google Calendar Events
+router.get('/events', ensureAuth, async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id);
-    if (!user.googleAccessToken) {
+    if (!req.user.googleAccessToken) {
       return res.status(401).json({ message: 'User not connected to Google' });
     }
     oauth2Client.setCredentials({
-      access_token: user.googleAccessToken,
-      refresh_token: user.googleRefreshToken,
+      access_token: req.user.googleAccessToken,
+      refresh_token: req.user.googleRefreshToken,
     });
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
@@ -69,10 +66,6 @@ router.get('/events', ensureAuth,async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
-
-router.get('/status', ensureAuth, (req, res) => {
-  res.json({ connected: !!req.user.googleAccessToken });
 });
 
 export default router;
