@@ -22,7 +22,7 @@ app.use(
   session({
     secret: getEnvVariable('SESSION_SECRET'),
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === 'production', // Set secure in production
       httpOnly: true,
